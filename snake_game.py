@@ -6,10 +6,19 @@ Created on Wed Jul  8 22:04:46 2020
 @author: michael
 """
 
-import pygame, sys, time, random
+import pygame, os, time, random
 from pygame.locals import *
 
+os.environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
+pygame.display.set_caption("Snake game")
+
+iconPath = "images/icon.ico"
+
+if os.path.exists(iconPath):
+    icon = pygame.image.load(iconPath)    
+    pygame.display.set_icon(icon)
+
 width, height = 500, 500
 
 screen = pygame.display.set_mode((height, width))
@@ -44,13 +53,8 @@ def main():
                 if event.key == pygame.K_DOWN:
                     change = 'D'
                     
-        if change == 'R' and direction != 'L':
-            direction = change
-        if change == 'L' and direction != 'R':
-            direction = change
-        if change == 'U' and direction != 'D':
-            direction = change
-        if change == 'D' and direction != 'U':
+        if ((change == 'R' and direction != 'L') or (change == 'L' and direction != 'R')
+            or (change == 'U' and direction != 'D') or (change == 'D' and direction != 'U')):
             direction = change
             
         if direction == 'R':
@@ -63,6 +67,7 @@ def main():
             snake_pos[1] += snakeD
         
         snake_body.insert(0, list(snake_pos))
+        
         if snake_pos == food_pos:
             food_pos = food_spawn(snakeD)
             score += 1
@@ -75,19 +80,15 @@ def main():
             pygame.draw.rect(screen, (200, 200, 200), pygame.Rect(pos[0], pos[1], snakeD, snakeD))
         pygame.draw.rect(screen, (255, 160, 60), pygame.Rect(food_pos[0], food_pos[1], snakeD, snakeD))
         
-        if snake_pos[0] <= 0 or snake_pos[0] >= width:
+        if (snake_pos[0] <= 0 or snake_pos[0] >= width
+            or snake_pos[1] <= 0 or snake_pos[1] >= height
+            or snake_pos in snake_body[1:]):
             print(f"Game Over! Score: {score}")
             run = False
-            
-        if snake_pos[1] <= 0 or snake_pos[1] >= height:
-            print(f"Game Over! Score: {score}")
-            run = False    
-            
-        if snake_pos in snake_body[1:]:
-            print(f"Game Over! Score: {score}")
-            run = False 
-            
-        
+                         
+        title = f"Snake game - Score: {score}"
+        pygame.display.set_caption(title)
+                    
         pygame.display.flip()
         fps.tick(10)
         
